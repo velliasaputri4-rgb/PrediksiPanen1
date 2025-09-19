@@ -1,4 +1,3 @@
-// Data masa panen (dalam hari) + tahapan pertumbuhan
 const tanamanData = {
   "jagung": {
     hari: 105,
@@ -32,6 +31,15 @@ const tanamanData = {
       "46 - 65 hari: Polong matang, siap dipanen."
     ]
   },
+  "buncis": {
+   hari: 40,
+   tahap: [
+    "0 - 10 hari: Pertumbuhan vegetatif awal (batang dan daun).",
+    "11 - 20 hari: Pembentukan cabang dan bunga mulai muncul.",
+    "21 - 30 hari: Pembentukan polong muda.",
+    "31 - 40 hari: Polong matang, siap dipanen."
+  ]
+},
   "kacang panjang": {
     hari: 60,
     tahap: [
@@ -215,16 +223,23 @@ const tanamanData = {
       "41 - 80 hari: Berbunga dan biji mulai terbentuk.",
       "81 - 120 hari: Biji matang, siap dipanen."
     ]
-  }
+  },
+  "melon": {
+   hari: 70,
+   tahap: [
+    "0 - 20 hari: Pertumbuhan vegetatif awal (batang dan daun).",
+    "21 - 35 hari: Pembentukan sulur, bunga mulai muncul.",
+    "36 - 55 hari: Pembuahan, buah mulai terbentuk dan membesar.",
+    "56 - 70 hari: Buah matang, siap dipanen."
+  ]
+}
 };
 
-// Element references (sesuai HTML kamu)
 const form = document.getElementById("panenForm");
 const hasilDiv = document.getElementById("hasilPanen");
 const analisisDiv = document.getElementById("deteksiMasalah");
 const hapusBtn = document.getElementById("hapusHistory");
 
-// util
 function formatDate(d) {
   return new Date(d).toLocaleDateString("id-ID");
 }
@@ -232,8 +247,7 @@ function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-// Menentukan penyesuaian hari berdasarkan kondisi cuaca.
-// Angka ini bisa kamu sesuaikan (saat ini: kering +10, hujan +5, cerah -5, berawan 0)
+
 function computeWeatherAdjustment(cuaca) {
   switch (cuaca) {
     case "kering":
@@ -262,7 +276,6 @@ function generateAnalysis(cuaca) {
   }
 }
 
-// Fungsi utama: melakukan prediksi, menampilkan hasil, menyimpan ke localStorage
 function prediksiPanen(tanaman, tanggalTanamStr, cuaca) {
   const data = tanamanData[tanaman];
   if (!data) {
@@ -304,11 +317,9 @@ function prediksiPanen(tanaman, tanggalTanamStr, cuaca) {
     </div>
   `;
 
-  // tampilkan (juga akan dimunculkan di bagian "Data Prediksi Tersimpan" setelah save)
   hasilDiv.innerHTML = hasilHTML;
   analisisDiv.innerHTML = analisisHTML;
 
-  // simpan ke localStorage dengan key unik (tanaman + timestamp)
   const key = `prediksi_${tanaman}_${Date.now()}`;
   const toStore = {
     tanaman,
@@ -322,19 +333,15 @@ function prediksiPanen(tanaman, tanggalTanamStr, cuaca) {
   };
   localStorage.setItem(key, JSON.stringify(toStore));
 
-  // refresh daftar saved
   loadSaved();
 }
 
-// Memuat semua prediksi tersimpan dan menampilkannya
 function loadSaved() {
   const savedKeys = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && k.startsWith("prediksi_")) savedKeys.push(k);
   }
-
-  // Urutkan berdasarkan timestamp (paling baru dulu)
   savedKeys.sort((a, b) => {
     const ta = parseInt(a.split("_").pop(), 10);
     const tb = parseInt(b.split("_").pop(), 10);
@@ -365,7 +372,6 @@ function loadSaved() {
   analisisDiv.innerHTML = savedAnalisisHTML;
 }
 
-// Event listeners
 if (form) {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -396,5 +402,4 @@ if (hapusBtn) {
   });
 }
 
-// Muat saved saat halaman dibuka
 window.addEventListener("load", loadSaved);
